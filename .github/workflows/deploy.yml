@@ -55,11 +55,11 @@ jobs:
         run: |
           echo ${{ secrets.UPSTASH_REDIS_REST_URL }}
           echo "UPSTASH_REDIS_REST_URL=${{ secrets.UPSTASH_REDIS_REST_URL }}"
+          echo ${{ secrets.UPSTASH_REDIS_REST_TOKEN }}
+          echo "UPSTASH_REDIS_REST_TOKEN=${{ secrets.UPSTASH_REDIS_REST_TOKEN }}"
 
       - name: Build VuePress site
         run: pnpm build
-        env:
-          UPSTASH_REDIS_REST_URL: ${{secrets.UPSTASH_REDIS_REST_URL}}
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
