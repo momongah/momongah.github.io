@@ -6,6 +6,11 @@ const nextConfig = {
 	experimental: {
 		mdxRs: true,
 	},
+	output: "export",
+	basePath: "/nextjs-github-pages",
+	images: {
+		unoptimized: true,
+	  },
 };
 
 export default withContentlayer(nextConfig);
