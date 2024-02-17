@@ -27,7 +27,8 @@ concurrency:
 jobs:
   # Build job
   build:
-    runs-on: ubuntu-latest   
+    runs-on: ubuntu-latest
+    environment: github-pages
     steps:
       - uses: actions/checkout@v2
 
@@ -49,6 +50,11 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install
+
+      - name: Store variables
+        run: |
+          echo ${{ secrets.UPSTASH_REDIS_REST_URL }}
+          echo "UPSTASH_REDIS_REST_URL=${{ secrets.UPSTASH_REDIS_REST_URL }}"
 
       - name: Build VuePress site
         run: pnpm build
