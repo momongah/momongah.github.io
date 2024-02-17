@@ -6,7 +6,7 @@ const nextConfig = {
 	experimental: {
 		mdxRs: true,
 	},
-	// output: "export",
+	output: "standalone",
 	basePath: "/momongah.github.io",
 	images: {
 		unoptimized: true,
