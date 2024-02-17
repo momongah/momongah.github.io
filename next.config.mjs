@@ -6,8 +6,8 @@ const nextConfig = {
 	experimental: {
 		mdxRs: true,
 	},
-	output: "export",
-	basePath: "/nextjs-github-pages",
+	// output: "export",
+	basePath: "/momongah.github.io",
 	images: {
 		unoptimized: true,
 	  },
