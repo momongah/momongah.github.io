@@ -27,11 +27,7 @@ concurrency:
 jobs:
   # Build job
   build:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [20]
-    
+    runs-on: ubuntu-latest   
     steps:
       - uses: actions/checkout@v2
 
@@ -56,6 +52,8 @@ jobs:
 
       - name: Build VuePress site
         run: pnpm build
+        env:
+          UPSTASH_REDIS_REST_URL: ${{secrets.UPSTASH_REDIS_REST_URL}}
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
