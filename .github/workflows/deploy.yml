@@ -55,9 +55,9 @@ jobs:
         run: |
           touch .env
           echo ${{ secrets.UPSTASH_REDIS_REST_URL }}
-          echo "UPSTASH_REDIS_REST_URL=${{ secrets.UPSTASH_REDIS_REST_URL }} >> .env"
+          echo 'UPSTASH_REDIS_REST_URL=${{ secrets.UPSTASH_REDIS_REST_URL }}' >> .env
           echo ${{ secrets.UPSTASH_REDIS_REST_TOKEN }}
-          echo "UPSTASH_REDIS_REST_TOKEN=${{ secrets.UPSTASH_REDIS_REST_TOKEN }} .env"
+          echo 'UPSTASH_REDIS_REST_TOKEN=${{ secrets.UPSTASH_REDIS_REST_TOKEN }}' .env
 
       - name: Build site
         run: pnpm build
