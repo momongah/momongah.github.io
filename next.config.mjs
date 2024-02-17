@@ -6,11 +6,9 @@ const nextConfig = {
 	experimental: {
 		mdxRs: true,
 	},
-	output: "standalone",
-	basePath: "/momongah.github.io",
 	images: {
 		unoptimized: true,
-	  },
+	},
 };
 
 export default withContentlayer(nextConfig);
