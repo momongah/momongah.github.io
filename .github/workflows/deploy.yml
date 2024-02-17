@@ -33,21 +33,29 @@ jobs:
         node-version: [18]
     
     steps:
-      - name: pnpm-setup
-        uses: pnpm/action-setup@
+      - uses: actions/checkout@v2
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v1
         with:
-          version: 7
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v3
+          node-version: 16.x
+
+      - name: Install pnpm
+        run: npm install --global pnpm
+
+      - name: Cache .pnpm-store
+        uses: actions/cache@v2
         with:
-          node-version: ${{ matrix.node-version }}
-          cache: pnpm
+          path: ~/.pnpm-store
+          key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-
 
       - name: Install dependencies
         run: pnpm install
 
-      - name: Build
-        run: pnpm run build
+      - name: Build VuePress site
+        run: pnpm build
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
