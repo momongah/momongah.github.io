@@ -1,0 +1,381 @@
+---
+title: Music Generator
+description: LSTM Based Music Generation System
+repository: momongah/MusicGenerator
+date: 2019-12-6
+published: true
+---
+
+<MidiPlayer playing src="/lstmsong.mid" visualizer="#viz"  className="flex justify-center items-center h-screen"/>
+
+<MidiVisualizer reload id="viz" src="/lstmsong.mid" type="staff" /> 
+
+
+## LSTM-based Music Generator
+
+
+#### Imports and and helpers
+Imports
+
+```py
+from rnn_shuffle import *
+from torch.distributions import Categorical
+import matplotlib.pyplot as plt
+from torch.utils.data.sampler import SubsetRandomSampler
+import warnings
+warnings.filterwarnings('ignore')
+```
+
+Loading texts and creating encodings
+
+```py
+root = 'texts/'
+
+f = open(root + 'train.txt', 'r')
+content = f.read()
+print(len(content))
+unique_chars = set(content)
+unique_chars.add('λ')
+chars_lst = sorted(list(unique_chars), key=str)
+char_dict = {char:i for i, char in enumerate(chars_lst, 0)}
+char_idxs = {i:char for i, char in enumerate(chars_lst, 0)}
+```
+```py
+#1-hot-encoding where onehot[i] is the 1hotencoding of the ith character
+length = len(chars_lst)
+onehot = np.zeros((length, length))
+for i, char in enumerate(chars_lst, 0):
+    onehot[i, i] = 1
+```
+
+Helpers
+
+```py
+def prepare(sample):   
+    return torch.LongTensor([[char_dict[i] for i in sample]])
+def get_chunks(song):
+    chunklst = []
+    C = 100 #chunk size
+    chunks = len(song) // C
+    for idx in range(chunks):
+        i = idx * C
+        j = (idx+1) * C
+        inp = prepare(song[i:j])
+        tar = prepare(song[i+1:j+1])
+        chunklst.append((inp, tar))
+    return chunklst
+def tensor_to_char(sample):
+    pred_chars = torch.multinomial(F.softmax(sample.div(temp)), 1).view(-1)
+    return ''.join(char_idxs[i.item()] for i in pred_chars.to('cpu'))
+def to_char(sample):
+    return char_idxs[sample.item()]
+#temperature
+temp = 1
+weight = torch.Tensor(onehot)
+```
+
+## Define parameters and load model & dataset
+
+#### Parameters
+
+```py
+hidsz = 501
+inpsz = 94
+outsz = 94 # vocab size?
+num_layers = 1
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+pathdir = 'model_states/' + str(hidsz) + 'units'
+```
+
+#### Loading model
+
+```py
+net = RNnet(inpsz, hidsz, outsz, weight, num_layers).to(device)
+criterion = nn.CrossEntropyLoss()
+
+#Instantiate the gradient descent optimizer
+#use Adam optimizer with default parameters
+optimizer = optim.Adam(net.parameters(), lr=0.001)
+```
+
+#### Loading datasets
+
+```py
+trainset = loader(root + 'train.txt')
+validset = loader(root + 'val.txt')
+
+#deterministic shuffling, helpful when optimizing
+shuffle_dataset = True
+random_seed= 42
+
+tsize = len(trainset)
+vsize = len(validset)
+tidxs = list(range(tsize))
+vidxs = list(range(vsize))
+
+if shuffle_dataset :
+    np.random.seed(random_seed)
+    np.random.shuffle(tidxs)
+    
+    np.random.seed(random_seed)
+    np.random.shuffle(vidxs)
+
+tsampler = SubsetRandomSampler(tidxs)
+vsampler = SubsetRandomSampler(vidxs)
+
+train = DataLoader(trainset, batch_size=1, sampler=tsampler)
+valid = DataLoader(validset, batch_size=1, sampler=vsampler)
+```
+
+
+## Training
+
+
+```py
+states = None
+epochs = 25
+N = 50
+
+ #early stopping
+stop = True
+#training and validation losses
+tloss = []
+vloss = []
+
+#used with early stopping to save the best model
+#with the lowest validation loss
+best_loss = float('inf')
+
+
+#resets the seed within generational runs but still sample
+#songs still randomized within each epoch
+torch.manual_seed(random_seed)
+
+#epochs loop
+for itrs in range(epochs):
+    
+    #list to hold loss of each sample song within an epoch
+    epochloss = []
+   
+    #forward pass
+    for i, song in enumerate(train, 0):
+        song = song[0]
+        trainloss = 0
+        minibatchloss = 0
+        xnloss = []
+        states = None
+        
+        #use BPTT(100) in chunks of 100 characters
+        #from each song
+        for inputs, targets in get_chunks(song):
+            
+            inputs = inputs.to(device)
+            targets = targets.to(device)
+
+            optimizer.zero_grad()
+            outputs, states = net(inputs, states)
+            targs = torch.squeeze(targets)
+            print('Epoch [%d] minibatch [%d]\r' % (itrs+1, i), end="")
+
+            loss = criterion(outputs, targs)
+            loss.backward()
+            optimizer.step()
+
+            trainloss += loss.item()      
+            xnloss.append(loss.item())
+
+            if i % N == 49:
+                #Print the loss averaged over the last N mini-batches
+                print('\tEpoch %d, running %d loss: %.3f\r'
+                 % (1,i+1, trainloss), end="")
+                trainloss = 0
+
+        #get the average loss for each sample song
+        song_loss = np.average(xnloss)
+        epochloss.append(song_loss)
+    
+    #average loss of training set for each epoch
+    eploss = np.average(epochloss)
+                
+    print('Epoch [%d] train loss is (%.3f)' % (itrs+1, eploss)) 
+    tloss.append(eploss)
+    
+    
+    epochloss = []
+    songout = '<'
+
+    #validation performance to see how our trained model does 
+    #on unseen songs, saves the model if it has the lowest loss
+    with torch.no_grad():
+        for i, song in enumerate(valid, 0):
+            song = song[0]
+            validloss = 0
+            minibatchloss = 0
+            xncost = []
+            states = None
+            for inputs, targets in get_chunks(song):
+            
+                inputs = inputs.to(device)
+                targets = targets.to(device)
+
+                outputs, states = net(inputs, states)
+
+                targs = torch.squeeze(targets)
+                loss = criterion(outputs, targs).item()
+
+                validloss += loss
+                xncost.append(loss)
+
+                if i % N == 49:
+                    validloss /= N
+                    print('\tEpoch %d, valid %d loss: %.3f\r'
+                     % (1,i+1, validloss), end="")
+                    validloss = 0
+                    
+                if i == 0:
+                    songout += tensor_to_char(outputs)
+            
+            eploss = np.average(xncost)
+            epochloss.append(eploss)
+    
+        ep_loss = np.average(epochloss).round(4)
+        print('Epoch [%d] valid loss is (%.4f)' % (itrs+1, ep_loss)) 
+
+        if len(vloss) < 2:
+            vloss.append(ep_loss)
+        elif vloss[-2] <= vloss[-1] <= ep_loss:
+            vloss.append(ep_loss)
+            if stop:
+                print("EARLY STOPPED AT EPOCH: ", itrs + 1)
+                print("models[-2] has the lowest valid error?")
+                break
+        else:
+            vloss.append(ep_loss)
+            
+    #print a sample generated song every 3 epochs
+    if itrs % 3 == 0:
+        print('---------------------------------')
+        print('GENERATED SONG AT EPOCH [{}]'.format(itrs+1))
+        print(songout)
+        print('---------------------------------')
+    
+#     path = 'model_states/states_' + 'ep' + str(itrs+1) + '.pt'
+    #if we got a better loss, save the model_state_dict()
+    if vloss[-1] < best_loss:
+        path = pathdir +  '.pt'
+        torch.save(net.state_dict(), path)
+        print('new best loss')
+        best_loss = vloss[-1]
+
+    print()
+```
+
+##### Show loss results
+
+```py
+minloss = np.argmin(vloss)
+loss_str = str(int((vloss[minloss] - 1).round(4) * 1000))
+
+#loss graph
+graph_title = 'Training vs Validation Losses for LSTM 1 Layer ' + str(hidsz) + ' Units'
+
+fig = plt.figure(figsize=(10, 8))
+ax = plt.subplot()
+ax.plot(np.arange(1, len(tloss) + 1), tloss, label='Training Losses')
+ax.plot(np.arange(1, len(vloss) + 1), vloss, label='Validation Losses')
+ax.set(xlabel='Number of Epochs', ylabel='Losses',
+           title=graph_title)
+leg = ax.legend() #loc=4)
+fig.savefig('graphs/' + str(hidsz) + 'units_vloss' + loss_str + '.png')
+```
+<img src="https://i.imgur.com/deyEYLF.png"/>
+
+
+## Loading the best checkpoint and generating a new song
+##### Loading checkpoint
+
+```py
+#load the best model and generating music using its learned weights
+bestmodelpath = pathdir + '.pt'
+savepath = pathdir + loss_str + '.pt'
+makesong_net = RNnet(inpsz, hidsz, outsz, weight, num_layers)
+makesong_net.load_state_dict(torch.load(bestmodelpath))
+makesong_net = makesong_net.to(device)
+torch.save(makesong_net.state_dict(), savepath)
+makesong_net.eval()
+```
+
+##### Generating song
+```py
+input_char = '<' # make longer if not doing it right '<start>'
+input_string = '<start>\nX:'
+temp = 0.8
+inp_str = input_string
+
+inputs = prepare(inp_str).to(device)
+initial_output, initial_state = makesong_net(inputs, None)
+
+pls_work = torch.multinomial(F.softmax(initial_output.div(temp)), 1)
+lastchar = to_char(pls_work[-1])
+
+inp_str += lastchar
+print(inp_str)
+print()
+
+while '<end>' not in inp_str:
+# for _ in range(1000):
+    inputs = prepare(inp_str).to(device)
+    output, initial_state = makesong_net(inputs, None)
+    pls_work = torch.multinomial(F.softmax(output.div(temp)), 1)
+    lastchar = to_char(pls_work[-1])
+    inp_str += lastchar
+    
+    if 'λ' in inp_str:
+        break
+
+print("--------- Generated song ---------")
+print(inp_str)
+```
+Song generated. Go to the top of the page to listen to the generated song.
+<ScrollToTopButton />
+```
+<start>
+X:4
+
+--------- Generated song ---------
+<start>
+X:42
+T:Scout madA Bourr?e
+O:France
+A:Provence
+C:Trad.
+R:Marche
+S:Carnet du tambourinaire Ginas (1924)
+R:Danse trad.
+O:France
+A:Provence
+C:Trad.
+R:Michelonde
+Z:Transcrit et/ou corrig? par Michel BELLON - 2007-08-13
+Z:Pour toute observation mailto:galouvielle@free.fr
+M:4/2
+L:1/4
+Q:1/4=180
+K:Cbmaj
+V:1
+"D"BA/G/ FG | "C"cB/c/ "G"FF | "F"GF BB "Am"BA/B/ | "C"c2 "A"AG AB | "G"dd cA | "G"e>d cB | "C"B>A Be | "G"dB "D"e>d | "G"dc BG "C"c2 |:
+"B"GF GB "C7"EG | "F"cB "A"A2G :|
+L:1/8
+":"Mdc6 "G"A2 "B"Dd/2d/2| "C"e3 z3|
+"F"f2a fed|"C"e2f edc|BEF GAB|"C"edc "G7"d2d|"C"c2G "F"A2:|
+"C"c2c "C"e2d|"G"d2z "3"fed|"C"e2e "G"d2d|"C"e2e "F"c2 :|
+"C"Con dermen""|"G"Md2 d|"C"c2c "G"d|"G"c2 "C"cA|BdcB A2|"G"B2"D"A3:|
+"D"d2d "C"e2d|"C"e2e f2g|"C"e2e "C"e2f|"C"efe "G"dGA|"G"B2A "F7"d2d|"C"e2c "C"c2e|"G"d2c "Am"ecd|"C"e2a "C"e2c|"
+"efe "G"d2d|"C"e^d "G"dde|"C"eec "C"e2d|"C"e2c "C"e2""|"D2A "G7"d2G|"G"G3 "G"d2d|"C"e3 d3|"C"c2z "C"c2z|"C"c2d "G7"d2B|d2d d2d|"C"e2e "C"e2d|"C"eec "G"d2e|"C"efe "G7"d2e|"C"cBc dBA|"G"d2d d2e|"C"c2c "C"e2d|"C7"eee "F"d3:|2"B"BAG E2G|"C"c3 zD2|"F7"F2F FFD|"C"c2c "D7"^AGF|"C"A2G "C7"ecA|"C"c=BA "C"A2:|
+"Am"A2c "C"cBA|"F"A2c "G"d2c|"F"A2z "C"c2d|"Am"c2A "C"c2e|"F"d3""G"BAG|"C"e2d|"C"e2f|"C"e2e:"C"c2c|"C"ede "C"c2|"C"c2c "F"F2F|"G"BA3|"C"c2|"C"c3:|
+|:A2B cBA|"C"c2c "G"dB)|"C"c2c "E7"B2A|
+"F"F2A "F"c2B|"C"e2c "C"e2d|
+[1"G"BAG "C"c2|"C"c2c "G"d2e|"G"d2B "C"e3|"G"d3z2z|"C"e4^c2|"G"dcB Mc2|"C"e2e "A7"ed2|"C"c2c A2d|"G"df/g/ ag|"C"c2c "C"c2|"G"BGA "Bb"d2d|"C"e3e"G|"C"c2c2 "D7"d2z||
+"Fr"e2e "C"e2c|"C"e2d "G"d2c|"C"c2d "C"fed|"C"c3c2f|"C"e3 "Bdf|"C"e2d c2G|"G"d3G2|"G"ddd edB|"G"dfe "C"e2|edc def|"C"e2g fef|"C"e2e "C"e2f|"C"efg edc|"G"d2c|"C"c2c|"G"g2d|"C"e2z|"C"efe|"G"dcB|"C"c2B|"C"c2A|"G7"=B2z|"G"d3|"C"c3:|
+<end>
+```
