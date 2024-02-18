@@ -24,6 +24,12 @@ export async function generateStaticParams(): Promise<Props["params"][]> {
     }));
 }
 
+// Check if window object is defined (client-side)
+const isClient = typeof window !== 'undefined';
+
+// Conditional import of Mdx component
+const MdxComponent = isClient ? require('@/app/components/mdx').Mdx : null;
+
 export default async function PostPage({ params }: Props) {
   const slug = params?.slug;
   const project = allProjects.find((project) => project.slug === slug);
@@ -41,7 +47,7 @@ export default async function PostPage({ params }: Props) {
       <ReportView slug={project.slug} />
 
       <article className="px-4 py-12 mx-auto prose prose-zinc prose-quoteless">
-        <Mdx code={project.body.code} />
+        {MdxComponent && <MdxComponent code={project.body.code} />}
       </article>
     </div>
   );
