@@ -60,7 +60,10 @@ jobs:
           echo "UPSTASH_REDIS_REST_TOKEN=${{ secrets.UPSTASH_REDIS_REST_TOKEN }}" >> .env.production
 
       - name: Build site
-        run: pnpm build
+        run: npm run build
+
+      - name: Serve site
+        run: npx serve@latest out
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
