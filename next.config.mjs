@@ -9,6 +9,8 @@ const nextConfig = {
 	images: {
 		unoptimized: true,
 	},
+	distDir: "out",
+	output: "export"
 };
 
 export default withContentlayer(nextConfig);

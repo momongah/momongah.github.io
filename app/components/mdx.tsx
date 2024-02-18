@@ -4,7 +4,8 @@ import * as React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useMDXComponent } from "next-contentlayer/hooks";
-import {YouTube} from 'mdx-embed';
+import { useMDXComponents } from '../../mdx-components';
+// import {YouTube} from 'mdx-embed';
 import 'html-midi-player';
 import ImageGallery from "./gallery"; // Import the ImageGallery component
 
@@ -231,7 +232,7 @@ const components = {
         </button>
     ),
 	Image,
-	YouTube,
+	// YouTube,
 	ImageGallery,
 };
 
@@ -241,10 +242,12 @@ interface MdxProps {
 
 export function Mdx({ code }: MdxProps) {
 	const Component = useMDXComponent(code);
+	const Components = useMDXComponents(code);
 
 	return (
 		<div  className="mdx">
 			<Component components={components} />
+			<Components components={components} />
 		</div>
 	);
 }

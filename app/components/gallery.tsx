@@ -9,15 +9,18 @@ const ImageGallery = ({ images }: { images: string[] }) => {
   useEffect(() => {
     const container = containerRef.current;
     if (container) {
-        container.style.scrollBehavior = 'smooth'; // Enable smooth scrolling behavior
-        const width = container.offsetWidth;
-        const scrollInterval = setInterval(() => {
-          setScrollPosition(prevPosition => (prevPosition + width >= width * images.length ? 0 : prevPosition + width));
-        }, 3000); // Change this value to adjust auto-scroll speed (in milliseconds)
+      container.style.scrollBehavior = 'smooth'; // Enable smooth scrolling behavior
+      const width = container.offsetWidth;
+      
+      // Define the auto-scrolling interval
+      const scrollInterval = setInterval(() => {
+        setScrollPosition(prevPosition => (prevPosition + width >= width * images.length ? 0 : prevPosition + width));
+      }, 3000); // Change this value to adjust auto-scroll speed (in milliseconds)
   
-        return () => clearInterval(scrollInterval);
-      }
-    }, [images]);
+      // Clear the interval on component unmount
+      return () => clearInterval(scrollInterval);
+    }
+  }, [images]); // Re-run effect when images chan
 
   return (
     <div className="relative overflow-hidden" ref={containerRef}>

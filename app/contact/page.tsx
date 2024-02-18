@@ -3,14 +3,9 @@ import { Github, Mail, Twitter } from "lucide-react";
 import Link from "next/link";
 import { Navigation } from "../components/nav";
 import { Card } from "../components/card";
+import ImageGallery from "../components/gallery";
 
 const socials = [
-	{
-		icon: <Mail size={20} />,
-		href: "mailto:sidiqikz@gmail.com",
-		label: "Email",
-		// handle: "",
-	},
 	{
 		icon: <Github size={20} />,
 		href: "https://github.com/momongah",
@@ -51,6 +46,12 @@ export default function Example() {
 						</Card>
 					))}
 				</div>
+			<ImageGallery images={['/ashe.jpg', '/kaisa.png', '/seraphine.png',
+                    '/ahri1.jpg', '/ahri2.png', '/diana.png',
+                    '/diana2.png', '/diana3.png', '/diana4.png',
+                    '/diana5.png', '/lux1.png', '/zed.jpg',
+                    '/diana6.png', '/lux2.png', '/lux3.png'
+                    ]}/>
 			</div>
 		</div>
 	);
