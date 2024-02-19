@@ -1,22 +1,32 @@
 ---
 import { Image } from "astro:assets";
 
+const imgs = [
+    'https://res.cloudinary.com/drs9gdzl5/image/upload/v1708321234/lolartify/ylbffryr3fa5viiyrc8v.jpg',
+    'https://res.cloudinary.com/drs9gdzl5/image/upload/v1708321241/lolartify/zcprjokppfgnsqfec2jx.png',
+    'https://res.cloudinary.com/drs9gdzl5/image/upload/v1708321245/lolartify/cykzsdlsisxvnfjm4ax8.png',
+    'https://res.cloudinary.com/drs9gdzl5/image/upload/v1708321255/lolartify/dbalklwbk1bjxd77fxox.png',
+    'https://res.cloudinary.com/drs9gdzl5/image/upload/v1708321256/lolartify/trm4xkmuzqvrsy4nvxu4.png',
+    'https://res.cloudinary.com/drs9gdzl5/image/upload/v1708321256/lolartify/lzenzcz9yoiqt4zsoelh.png',
+    'https://res.cloudinary.com/drs9gdzl5/image/upload/v1708321260/lolartify/znwq6rytullmbdcc9ydh.png',
+    'https://res.cloudinary.com/drs9gdzl5/image/upload/v1708321271/lolartify/enduywip9dlea2z1okcc.png',
+    'https://res.cloudinary.com/drs9gdzl5/image/upload/v1708321272/lolartify/leozqvx2ficshx3u3hln.png',
+    'https://res.cloudinary.com/drs9gdzl5/image/upload/v1708321274/lolartify/vhpo7llngrorzcofkmnq.png',
+    'https://res.cloudinary.com/drs9gdzl5/image/upload/v1708321233/lolartify/lbeyeyzbcsw5yo6bqadb.jpg'
 
-const paths = await Astro.glob('/public/assets/lolartify/*.{jpg,png,jpeg,gif}');
-const images = paths.map(path => path.default);
-// console.log(images[0]);
+];
 ---
 
 <div id="indicators-carousel" class="relative h-[36rem] w-full" data-carousel="slide">
     <!-- Carousel wrapper -->
     <div class="relative h-full overflow-hidden rounded-lg">
-        { images.map((img) => (
+        { imgs.map((img) => (
             <div class="hidden  duration-1000 ease-in-out" data-carousel-item>
-                <img 
-                    src={img.src.substring(img.src.indexOf('/assets'), img.src.indexOf('?'))}
+                <Image 
+                    src={img} //.src.substring(img.src.indexOf('/assets'), img.src.indexOf('?'))}
                     alt={'Image'}
-                    width={img.width}
-                    height={img.height}
+                    width={1920}
+                    height={1920}
                     class="absolute block w-full -translate-x-1/2 -translate-y-1/2  top-1/2 left-1/2"
                 />
             </div> 
