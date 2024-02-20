@@ -34,7 +34,7 @@ const date = entry.data.publishDate.valueOf();
 	<div class="stack gap-20">
 		<div class="stack gap-15">
 			<header>
-				<div class="wrapper stack gap-2">
+				<div class="relative wrapper stack gap-10">
 					<a class="back-link" href="/projects/"><Icon icon="arrow-left" /> Projects</a>
 					<Hero title={entry.data.title} align="start">
 						<div class="details">
@@ -65,7 +65,7 @@ const date = entry.data.publishDate.valueOf();
 	}
 
 	.back-link {
-		display: none;
+		display: flex;
 	}
 
 	.details {
@@ -137,7 +137,7 @@ const date = entry.data.publishDate.valueOf();
 
 	@media (min-width: 50em) {
 		.back-link {
-			display: block;
+			display: flex;
 			align-self: flex-start;
 		}
 
