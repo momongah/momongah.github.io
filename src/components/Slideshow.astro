@@ -22,21 +22,18 @@ const localImgs = [
     'public/assets/lolartify/ahri1.jpg',
     'public/assets/lolartify/ahri2.png',
 ];
-
-
-const paths = await Astro.glob('/public/assets/lolartify/*.{jpg,png,jpeg,gif}').then(files => {
-    return files.map(file => file.default);
-});
 ---
 
 <div id="indicators-carousel" class="relative h-[36rem] w-full" data-carousel="slide">
     <!-- Carousel wrapper -->
     <div class="relative h-full overflow-hidden rounded-lg">
-        { paths.map(img => (
+        { imgs.map((img) => (
             <div class="hidden  duration-1000 ease-in-out" data-carousel-item>
-                <img 
-                    src={img.src}
+                <Image 
+                    src={img} //.src.substring(img.src.indexOf('/assets'), img.src.indexOf('?'))}
                     alt={'Image'}
+                    width={1920}
+                    height={1920}
                     class="absolute block w-full -translate-x-1/2 -translate-y-1/2  top-1/2 left-1/2"
                 />
             </div> 
