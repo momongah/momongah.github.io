@@ -1,6 +1,5 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-
 import ContactCTA from '../components/ContactCTA.astro';
 import Hero from '../components/Hero.astro';
 import { ViewTransitions } from 'astro:transitions';
@@ -16,38 +15,62 @@ import { ViewTransitions } from 'astro:transitions';
 			</Hero>
 
 			<section>
-				<h2 class="section-title">Background</h2>
+				<h2 class="section-title">Experience</h2>
+				<div class="content flex flex-col gap-y-10">
+					<ul>
+						<li class="role-title">Lolartify, Software Engineer </li>
+						<ul class="points">
+							<li>Developed a text-to-image model using Stable Diffusion 1.5 as a base model for training the images, leveraging a custom dataset of League of Legends characters.</li>
+							<li>Utilized Next.js to build a full-stack web application, allowing users to seamlessly interact with the model and generate images.</li>
+							<li>Implementing front-end components within the application to facilitate user input, image display, and interaction, enhancing the overall user experience.</li>
+							<li>Creating a robust backend infrastructure to efficiently process text prompts and generate images using the model's capabilities.</li>
+							<li>Ensuring a smooth integration between front-end and back-end components, guaranteeing a seamless user experience throughout the application.</li>							
+						</ul>
+					</ul>
+					<ul>
+						<li class="role-title">ODME Solutions, Software Engineer </li>
+						<ul class="points">
+							<li>Designed and developed multiple backend services and interfaces in Java to synchronize data between different tracking systems, utilizing REST, SOAP, and JMS</li>
+							<li>Implemented a filtering feature to seamlessly integrate the existing system with an external system, enhancing data exchange and compatibility</li>
+							<li>Significantly optimized processing time from 20ms to 0.5ms by implementing a custom XML parser, facilitating efficient communication with an external backend system responsible for tracking ship information</li>
+							<li>Employed Docker to containerize applications, ensuring consistency and portability, and successfully deployed them on the OpenShift platform</li>
+							<li>Implemented comprehensive unit testing strategies to ensure the quality and functionality of software applications.</li>
+							<li>Proficiently documented system design and features using LaTeX, effectively communicating technical information to stakeholders in a clear and organized manner</li>
+							<li>Actively participated in agile development methodologies, including sprint planning, stand-up meetings, and retrospective sessions, to ensure a timely delivery</li>
+						</ul>
+					</ul>
+				</div>
+			</section>
+			<section>
+				<h2 class="section-title">Projects</h2>
 				<div class="content">
-					<p>
-						Lorem ipsum dolor sit amet, <a href="https://astro.build/">Astro</a> makes people happy.
-						Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Proin nibh nisl condimentum
-						id venenatis a condimentum vitae. Dapibus ultrices in iaculis nunc. Arcu odio ut sem nulla
-						pharetra diam sit amet. Diam quis enim lobortis scelerisque fermentum dui faucibus in ornare.
-					</p>
-					<p>
-						Arcu dui vivamus arcu felis bibendum ut tristique et egestas. Eget gravida cum sociis
-						natoque penatibus. Cras fermentum odio eu feugiat pretium nibh. Proin nibh nisl
-						condimentum id venenatis. Porta nibh venenatis cras sed felis eget velit. Id diam vel
-						quam elementum pulvinar etiam non.
-					</p>
-					<p>
-						Ultrices tincidunt arcu non sodales neque sodales ut. Sed enim ut sem viverra aliquet
-						eget sit amet. Lacus luctus accumsan tortor posuere ac ut consequat semper viverra.
-						Viverra accumsan in nisl nisi scelerisque eu ultrices. In massa tempor nec feugiat nisl
-						pretium fusce.
-					</p>
+					<ul>
+						<li>TFT Analytics</li>
+						<ul class="points">
+							<li>Web app for reviewing a player’s match history in the popular game Teamfight Tactics</li>
+							<li>Designed and developed REST API endpoints using Flask to facilitate seamless communication with the game developer's API, enabling efficient retrieval of players' information</li>
+							<li>Collaborated with the frontend team to enhance logic in React, resulting in a reduction of three redundant API calls and improving overall system performance</li>
+							<li>Optimized website loading time by implementing a CDN (Content Delivery Network) configuration for efficient transfer of image assets. Utilized Amazon Web Services S3 and CloudFront to streamline asset delivery and enhance user experience</li>
+						</ul>
+					</ul>
 				</div>
 			</section>
 			<section>
 				<h2 class="section-title">Education</h2>
 				<div class="content">
-					<p>Corporis voluptates tenetur laudantium.</p>
+					<ul>
+						<li>University of California, San Diego</li>
+						<ul class="points">
+							<li>B.S. in Cognitive Science w/ focus in Machine Learning - GPA 3.52</li>
+							<li>Minor in Computer Science - GPA 3.50</li>
+						</ul>
+					</ul>
 				</div>
 			</section>
 			<section>
 				<h2 class="section-title">Skills</h2>
 				<div class="content">
-					<p>officia unde omnis</p>
+					<p>Java, Python, JavaScript, HTML/CSS,  C++, SQL, Git, React, Flask, Jira, Bitbucket, IntelliJ, Jenkins</p>
 				</div>
 			</section>
 		</main>
@@ -82,6 +105,20 @@ import { ViewTransitions } from 'astro:transitions';
 
 	.content {
 		grid-column: 2 / 4;
+	}
+
+	.points {
+		list-style-type: circle;
+		font-size: 1rem; /* 16px */
+		line-height: 1.5rem; /* 24px */
+	}
+
+	/* .points li {
+		text-indent: 2rem;
+	} */
+
+	.content ul {
+		gap: 3.5rem;
 	}
 
 	.content :global(a) {

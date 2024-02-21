@@ -36,9 +36,8 @@ const date = entry.data.publishDate.valueOf();
 			<header>
 				<div class="relative wrapper stack gap-10">
 					<a class="back-link" href="/projects/"><Icon icon="arrow-left" /> Projects</a>
-					<Hero title={entry.data.title} align="start">
+					<Hero title={entry.data.title}>
 						<div class="details">
-							<p class="description">{entry.data.publishDate.toDateString() ?? "SOON"}</p>
 							<div class="tags">
 								<!-- {entry.data.tags.map((t) => <Pill>{t}</Pill>)} -->
 							</div>
@@ -90,6 +89,7 @@ const date = entry.data.publishDate.valueOf();
 	.content {
 		max-width: 65ch;
 		margin-inline: auto;
+		font-size: var(--text-xs);
 	}
 
 	.content > :global(* + *) {
@@ -104,6 +104,14 @@ const date = entry.data.publishDate.valueOf();
 		margin: 1.5rem 0;
 	}
 
+	.content :global(h2) {
+		font-size: var(--text-xl);
+	}
+
+	.content :global(h5) {
+		font-size: var(--text-base);
+	}
+
 	.content :global(img) {
 		border-radius: 1.5rem;
 		box-shadow: var(--shadow-sm);
@@ -112,7 +120,7 @@ const date = entry.data.publishDate.valueOf();
 	}
 
 	.content :global(blockquote) {
-		font-size: var(--text-lg);
+		font-size: var(--text-sm);
 		font-family: var(--font-brand);
 		font-weight: 600;
 		line-height: 1.1;
@@ -135,19 +143,23 @@ const date = entry.data.publishDate.valueOf();
 		text-decoration-color: currentColor;
 	}
 
-	@media (min-width: 50em) {
+	@media (min-width: 20rem) {
 		.back-link {
 			display: flex;
 			align-self: flex-start;
 		}
 
 		.details {
-			flex-direction: row;
 			gap: 2.5rem;
 		}
 
 		.content :global(blockquote) {
 			font-size: var(--text-2xl);
+		}
+
+		.content * {
+			font-size: var(--text-xs);
+			text-wrap: wrap;
 		}
 	}
 </style>

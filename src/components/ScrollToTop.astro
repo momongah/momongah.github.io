@@ -1,0 +1,64 @@
+---
+import Icon from './Icon.astro';
+---
+
+<scroll-to-top class="fixed bottom-10 right-10 z-50">
+    <button>
+        <span class="sr-only">Scroll to top</span>
+        <span class="icon"><Icon icon="arrow-up" /></span>
+    </button>
+</scroll-to-top>
+
+<script>
+	class ScrollToTop extends HTMLElement {
+		constructor() {
+			super();
+
+			const button = this.querySelector('button')!;
+
+			// Toggle the theme when a user clicks the button.
+			button.addEventListener('click', () => window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            }));
+		}
+	}
+	customElements.define('scroll-to-top', ScrollToTop);
+</script>
+
+<style>
+    button {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border: 0;
+        border-radius: 50%;
+        width: 3rem;
+        height: 3rem;
+        background-color: var(--gray-999);
+        box-shadow: inset 0 0 0 1px var(--accent-overlay);
+        cursor: pointer;
+    }
+
+    .icon {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        height: 100%;
+        font-size: 1.5rem;
+        color: var(--accent-overlay);
+    }
+
+    @media (prefers-reduced-motion: no-preference) {
+        .icon {
+            transition: color var(--theme-transition);
+        }
+    }
+
+    @media (forced-colors: active) {
+        .icon {
+            color: SelectedText;
+        }
+    }
+</style>
